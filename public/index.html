@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>osuNameCardGenerator</title>
+    <link rel="stylesheet" href="stylesheets/general.css" />
+    <link rel="stylesheet" href="stylesheets/index.css" />
+    <script src="javascripts/dom-to-image.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        用户: <input type="text" name="username" id="usernameInput" placeholder="用户名">
+        <br><br>
+        自定义背景: <input type="text" name="customBg" id="userBgInput" placeholder="链接 (默认为用户banner)">或颜色<input type="text" name="customBgColor" id="userBgColorInput" placeholder="#000000 (不需要的话留空)">
+        <br><br>
+        大小: <input type="text" name="width" id="widthInput" placeholder="宽 (默认 800)" size="10">px  X  <input type="text" name="height" id="heightInput" placeholder="高 (默认 450)" size="10">px
+        <br><br>
+        <!--边框颜色 (这个边框是为了方便抠图): <input type="text" name="borderColor" id="borderColorInput" placeholder="#00ff00 留空则无边框" value="#00ff00" size="10">--><input type="checkbox" id="roundedCornerCheck" name="roundedCornerCheck" checked /><label for="roundedCornerCheck">圆角</label><input type="text" name="borderRadius" id="borderRadiusInput" placeholder="圆角半径 (默认短边*0.12)" size="12">px
+        <br><br>
+        <center><button id="submitBtn">制作名片！</button><a id="waitStatus"> </a></center>
+        <center><button disabled id="saveAsPngBtn">保存为PNG图片</button> <button disabled id="saveToClipboardBtn">复制图片到剪贴板</button></center>
+        <br>
+        <a>如果你的浏览器开了 <b>暗黑模式</b> 等 <b>插件</b> 的话，请先关掉！ 保存图片功能不支持Safari浏览器！</a>
+        <div style="text-align: right;">by <a href="https://osu.ppy.sh/users/32657919">fuyukiS</a></div>
+    </div>
+
+    <div class="nameCardWrapper" id="nameCardWrapper">
+        <div class="nameCardContainer" id="nameCardContainer">
+            <div class="backgroundOverlay"></div>
+            <div class="content">
+                <img id="avatarImg">
+                <p id="usernameText"></p>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="javascripts/index.js"></script>
+</body>
+</html>

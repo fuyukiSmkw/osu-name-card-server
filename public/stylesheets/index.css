@@ -1,0 +1,73 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column; /* 垂直排列两个容器 */
+    align-items: center; /* 水平居中 */
+/*     justify-content: center; /* 垂直居中 */
+    min-height: 100vh; /* 确保最小高度为视口高度 */
+}
+
+.container {
+    /* 根据实际内容自动调整 */
+    margin: 20px 0; /* 与名片容器保持间距 */
+    padding: 10px;
+    border: 5px solid #000000;
+    border-radius: 10px;
+}
+
+.nameCardWrapper {
+    position: relative;
+    margin: 20px 0; /* 与上方容器保持间距 */
+    background: transparent;
+}
+
+.nameCardContainer {
+    position: relative;
+    display: inline-flex; /* 内容自适应 */
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* 保证模糊背景不外溢 */
+    background: transparent;
+
+    border: 0px solid #00000000; /* 透明边框 */
+    border-radius: 10px; /* JS需覆盖此值 */
+}
+
+.backgroundOverlay {
+    position: absolute;
+    top: -10px; /* 高斯模糊 */
+    left: -10px; /* 高斯模糊 */
+    width: calc(100% + 20px); /* 高斯模糊 */
+    height: calc(100% + 20px); /* 高斯模糊 */
+    background: ./default-bg.jpg center/cover no-repeat;
+    filter: blur(6px); /* 高斯模糊 */
+    z-index: -1;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px; /* 内容与边缘间距 */
+    text-align: center;
+}
+
+#avatarImg {
+    border-radius: 80px;
+    display: block; /* 移除图片底部间隙 */
+    margin-bottom: 12px; /* 与文字间距 */
+    /*width: 256px; */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.8); /* 图片阴影 */
+}
+
+#usernameText {
+    font-family: TorusSemiBold;
+    margin: 0; /* 移除默认段落边距 */
+    font-size: 42px;
+    color: #ffffff;
+    text-shadow: 0px 2px 8px rgba(0,0,0,0.8); /* 文字阴影 */
+}
