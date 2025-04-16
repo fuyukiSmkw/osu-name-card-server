@@ -50,14 +50,13 @@ app.use('/proxy', (req, res) => {
 });
 
 // osu-api-v2-js
-const osuApiClientConfig = require('./osu-api.json');
 let osuApi;
 (async () => {
     let osu = await import('osu-api-v2-js');
     try {
         osuApi = await osu.API.createAsync(
-            osuApiClientConfig.clientId,
-            osuApiClientConfig.clientSecret
+            process.env.CLIENT_ID,
+            process.env.CLIENT_SECRET
         );
     } catch (error) {
         console.error('osu-api-v2-js init error: ', error);

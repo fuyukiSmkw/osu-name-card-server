@@ -8,7 +8,7 @@ GPLv3 or later
 
 ## Configuration
 
-Create your own `osu-api.json` to put in your client ID and secret. See your [osu settings](https://osu.ppy.sh/home/account/edit)
+Set environmental variables `CLIENT_ID` and `CLIENT_SECRET` to your client ID and secret. You can create a file `.env` if it is local. See your [osu settings](https://osu.ppy.sh/home/account/edit)
 
 ## Run
 

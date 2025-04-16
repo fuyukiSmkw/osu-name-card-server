@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+// Local: load .env
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
 /**
  * Module dependencies.
  */
