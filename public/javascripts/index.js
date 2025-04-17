@@ -1,15 +1,19 @@
+function getRootUrl() {
+    return `${window.location.protocol}//${window.location.host}`; // "https://osu-name-card-server.vercel.app/"
+}
+
 function getCorsProxyUrl(originalUrl) {
-    const currentProtocol = window.location.protocol; // "http:"
-    const currentHost = window.location.host; // "example.com:3000"
-    return `${currentProtocol}//${currentHost}/proxy/${encodeURIComponent(originalUrl)}`;
+    return `${getRootUrl()}/proxy/${encodeURIComponent(originalUrl)}`;
 }
 
 const saveAsPngBtn = document.getElementById('saveAsPngBtn');
 const saveToClipboardBtn = document.getElementById('saveToClipboardBtn');
+const saveAsHtmlBtn = document.getElementById('saveAsHtmlBtn');
 
 function enableButtons(yourBool) {
     saveAsPngBtn.disabled = !yourBool;
     saveToClipboardBtn.disabled = !yourBool;
+    saveAsHtmlBtn.disabled = !yourBool;
 }
 enableButtons(false);
 
@@ -24,7 +28,10 @@ const preloadImage = (imgUrl, callback = (_blobUrl) => { }) => new Promise((reso
             throw response;
         return response.blob();
     }).then(blob => {
-        resolve(() => callback(URL.createObjectURL(blob)));
+        const reader = new FileReader();
+        reader.onload = () => resolve(() => callback(reader.result));
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
     }).catch(e => reject(e));
     /*const tmpimg = new Image();
     tmpimg.onload = () => resolve(() => callback(tmpimg));
@@ -161,15 +168,47 @@ document.getElementById('myForm').addEventListener('submit', async (e) => {
     enableButtons(true);
 });
 
+// 'Save as'-s
+function formatLocalISO(timestamp) {
+    const date = new Date(timestamp);
+
+    const pad2 = n => String(n).padStart(2, '0');
+    const pad3 = n => String(n).padStart(3, '0');
+
+    const YYYY = date.getFullYear();
+    const MM = pad2(date.getMonth() + 1);
+    const DD = pad2(date.getDate());
+    const hh = pad2(date.getHours());
+    const mm = pad2(date.getMinutes());
+    const ss = pad2(date.getSeconds());
+    const ms = pad3(date.getMilliseconds());
+
+    const offsetMin = -date.getTimezoneOffset();
+    const sign = offsetMin >= 0 ? '+' : '-';
+    const offH = pad2(Math.floor(Math.abs(offsetMin) / 60));
+    const offM = pad2(Math.abs(offsetMin) % 60);
+
+    const tz = offM === '00'
+        ? `UTC${sign}${offH}`
+        : `UTC${sign}${offH}:${offM}`;
+
+    return `${YYYY}-${MM}-${DD}T${hh}:${mm}:${ss}.${ms}-${tz}`;
+}
+const formatNow = () => formatLocalISO(Date.now());
+
+function download(url, name) {
+    const link = document.createElement('a');
+    link.download = name;
+    link.href = url;
+    link.click();
+}
+
 // Save as PNG button
 saveAsPngBtn.addEventListener('click', async () => {
     const container = document.getElementById('nameCardContainer');
 
     try {
-        const link = document.createElement('a');
-        link.download = `osuNameCard-${user.username}-${Date.now()}.png`;
-        link.href = await domtoimage.toPng(container);
-        link.click();
+        download(await domtoimage.toPng(container), `osuNameCard-${user.username}-${formatNow()}.png`);
     } catch (error) {
         alert(`保存失败: ${error.message}`);
     }
@@ -192,5 +231,26 @@ saveToClipboardBtn.addEventListener('click', async () => {
         });
     } catch (error) {
         alert(`复制至剪贴板失败: ${error.message}`);
+    }
+});
+
+// Save as HTML
+let saveAsHtmlJsModule = null;
+saveAsHtmlBtn.addEventListener('click', async () => {
+    if (saveAsHtmlJsModule === null) {
+        try {
+            saveAsHtmlJsModule = await import('/javascripts/save-as-html.js');
+        } catch (error) {
+            console.error('Error loading save-as-html.js: ', error);
+            alert('保存失败！请刷新页面重试');
+            return;
+        }
+    }
+
+    try {
+        await saveAsHtmlJsModule.saveAsHtml();
+    } catch (error) {
+        console.error('Error saving as html: ', error);
+        alert('保存失败！请刷新页面重试');
     }
 });
