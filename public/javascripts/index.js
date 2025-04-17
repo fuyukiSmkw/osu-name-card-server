@@ -16,6 +16,43 @@ enableButtons(false);
 var user = {}; // osu-api-v2-js interface User/Extended
 var lastUsernameInput = null;
 
+// Preload images and show them all at once
+var promises = [];
+const preloadImage = (imgUrl, callback = (_blobUrl) => { }) => new Promise((resolve, reject) => {
+    fetch(imgUrl).then(response => {
+        if (!response.ok)
+            throw response;
+        return response.blob();
+    }).then(blob => {
+        resolve(() => callback(URL.createObjectURL(blob)));
+    }).catch(e => reject(e));
+    /*const tmpimg = new Image();
+    tmpimg.onload = () => resolve(() => callback(tmpimg));
+    tmpimg.onerror = () => reject(new Error(`Error loading image ${imgUrl}`));
+    tmpimg.src = imgUrl;*/
+});
+const addPreloadImage = (imgUrl, callback) => promises.push(preloadImage(imgUrl, callback));
+const addWaitForPreloadImages = (callback) => promises.push(new Promise((resolve, _) => resolve(callback)));
+async function waitAndShowPreloadImages() {
+    try {
+        try {
+            const callbacks = await Promise.all(promises);
+            callbacks.forEach((callback) => {
+                callback();
+            });
+        } catch (error) {
+            console.error('Error showing preload images: ', error);
+            throw error;
+        }
+    } finally {
+        promises = [];
+    }
+}
+
+// 等待提示
+const waitStatus = document.getElementById('waitStatus');
+const setWaitStatus = (str) => { waitStatus.innerHTML = str; }
+
 document.getElementById('submitBtn').addEventListener('click', async () => {
     const username = document.getElementById('usernameInput').value.trim();
 
@@ -24,9 +61,12 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         return;
     }
 
-    // 等待提示
-    const waitStatus = document.getElementById('waitStatus');
-    waitStatus.innerHTML = '制作中...';
+    setWaitStatus('制作中...');
+
+    const failed = () => {
+        setWaitStatus('制作失败 qwq');
+        enableButtons(false);
+    };
 
     // 访问服务器
     if (username != lastUsernameInput) { // lazy
@@ -57,6 +97,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
             } else {
                 alert('获取用户信息失败，请刷新页面重试');
             }
+            failed();
             return;
         }
     }
@@ -70,35 +111,49 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         alert('Width or height not a number!');
         return;
     }
-    nameCardContainer.style.width = `${width}px`;
-    nameCardContainer.style.height = `${height}px`;
+    addWaitForPreloadImages(() => {
+        nameCardContainer.style.width = `${width}px`;
+        nameCardContainer.style.height = `${height}px`;
+    });
     // 设置边框圆角大小
     const brrrr = Math.round(Math.min(width, height) * 0.12);
     const userRadius = document.getElementById('borderRadiusInput').value || NaN;
+    let finalRadius;
     if (document.getElementById('roundedCornerCheck').checked)
         if (isNaN(userRadius))
-            nameCardContainer.style.borderRadius = `${brrrr}px`;
+            finalRadius = `${brrrr}px`;
         else
-            nameCardContainer.style.borderRadius = `${userRadius}px`;
+            finalRadius = `${userRadius}px`;
     else
-        nameCardContainer.style.borderRadius = '0';
+        finalRadius = '0';
+    addWaitForPreloadImages(() => nameCardContainer.style.borderRadius = finalRadius);
 
-    // 背景banner获取
+    // 背景 banner URL 及预加载
     const userBgURL = document.getElementById('userBgInput').value.trim() || user.cover.url;
     const userBgColor = document.getElementById('userBgColorInput').value.trim();
     const bgOverlay = nameCardContainer.querySelector('.backgroundOverlay');
     if (userBgColor)
-        bgOverlay.style.background = userBgColor;
+        addWaitForPreloadImages(() => bgOverlay.style.background = userBgColor);
     else
-        bgOverlay.style.background = `url(${getCorsProxyUrl(userBgURL)}) center/cover no-repeat`;
+        addPreloadImage(getCorsProxyUrl(userBgURL), (blobUrl) => bgOverlay.style.background = `url(${blobUrl}) center/cover no-repeat`);
 
-    // 设置图片和用户名
+    // 设置头像和用户名
     const img = nameCardContainer.querySelector('#avatarImg');
-    img.src = getCorsProxyUrl(user.avatar_url);
-    img.alt = `${user.username}'s avatar`;
+    addPreloadImage(getCorsProxyUrl(user.avatar_url), (blobUrl) => img.src = blobUrl);
     const text = nameCardContainer.querySelector('#usernameText');
-    text.innerHTML = user.username;
+    addWaitForPreloadImages(() => {
+        img.alt = `${user.username}'s avatar`;
+        text.innerHTML = user.username
+    });
 
+    try {
+        await waitAndShowPreloadImages();
+    } catch (error) {
+        console.error('Error loading images: ', error);
+        const promptStr = '图片加载失败: ' + error?.message;
+        alert(promptStr);
+        failed();
+    }
     waitStatus.innerHTML = '制作完成！';
     enableButtons(true);
 });
@@ -129,10 +184,10 @@ saveToClipboardBtn.addEventListener('click', async () => {
             [blob.type]: blob
         })];
 
-        navigator.clipboard.write(data).then(()=>{}, ()=>{
+        navigator.clipboard.write(data).then(() => { }, () => {
             throw new Error('error saving to clipboard');
         });
     } catch (error) {
-        alert(`保存失败: ${error.message}`);
+        alert(`复制至剪贴板失败: ${error.message}`);
     }
 });

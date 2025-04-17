@@ -24,3 +24,4 @@ npm run start
 * [osu!](https://osu.ppy.sh)
 * [osu-api-v2-js](https://github.com/TTTaevas/osu-api-v2-js/)
 * [cors-anywhere](https://github.com/Rob--W/cors-anywhere)
+* [dom-to-image](https://github.com/tsayen/dom-to-image)
