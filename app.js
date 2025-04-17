@@ -22,6 +22,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // cors-anywhere
+const allowedRefererDomains = [
+    process.env.HOSTNAME,
+    'http://localhost:3000'
+];
 const corsProxy = require('cors-anywhere').createServer({
     originWhitelist: [],
     // requireHeader: ['origin', 'x-requested-with'],
@@ -29,22 +33,33 @@ const corsProxy = require('cors-anywhere').createServer({
     removeHeaders: ['cookie', 'cookie2']
 });
 function isAllowedTarget(targetUrlStr) {
-    // If only allow ppy:
-    // const url = new URL(decodeURIComponent(targetUrlStr));
-    // const targetHost = url.hostname.toLowerCase();
-    // return (targetHost === 'ppy.sh' || targetHost.endsWith('.ppy.sh'));
+    // If only allow ppy.sh:
+    /* try {
+        const url = new URL(decodeURIComponent(targetUrlStr));
+        const targetHost = url.hostname.toLowerCase();
+        return (targetHost === 'ppy.sh' || targetHost.endsWith('.ppy.sh'));
+    } catch (_) {
+    }
+   return false; */
 
     // Allow all, because user may have custom background pic url
     return true;
 }
+function isAllowedReferer(referer) {
+    try {
+        const refUrl = new URL(referer);
+        return allowedRefererDomains.includes(refUrl.origin);
+    } catch (_) {
+    }
+    return false;
+}
 app.use('/proxy', (req, res) => {
     const targetUrl = req.originalUrl.replace('/proxy/', '');
     if (!isAllowedTarget(targetUrl))
-        return res.status(403).send(`
-        Proxy service only allows ppy.sh domains.
-        Blocked url: ${targetUrl}
-      `);
-
+        return res.status(403).send(`Proxy service only allows certain target domains.
+Blocked url: ${targetUrl}`);
+    if (!isAllowedReferer(req.headers.referer))
+        return res.status(403).send(`Forbidden`);
     req.url = decodeURIComponent(req.url.replace('/proxy/', '/'));
     corsProxy.emit('request', req, res);
 });
@@ -127,12 +142,12 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
