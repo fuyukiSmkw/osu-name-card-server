@@ -235,20 +235,33 @@ saveToClipboardBtn.addEventListener('click', async () => {
 });
 
 // Save as HTML
-let saveAsHtmlJsModule = null;
-saveAsHtmlBtn.addEventListener('click', async () => {
-    if (saveAsHtmlJsModule === null) {
-        try {
-            saveAsHtmlJsModule = await import('/javascripts/save-as-html.js');
-        } catch (error) {
-            console.error('Error loading save-as-html.js: ', error);
-            alert('保存失败！请刷新页面重试');
+
+async function dynamicLoadScript(src) {
+    return new Promise((resolve, reject) => {
+        const existingScript = document.querySelector(`script[src="${src}"]`);
+        if (existingScript) {
+            resolve();
             return;
         }
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = () => resolve();
+        script.onerror = (error) => reject(error);
+        document.body.appendChild(script);
+    });
+}
+
+saveAsHtmlBtn.addEventListener('click', async () => {
+    try {
+        await dynamicLoadScript('/javascripts/save-as-html.js');
+    } catch (error) {
+        console.error('Error loading save-as-html.js: ', error);
+        alert('保存失败！请刷新页面重试');
+        return;
     }
 
     try {
-        await saveAsHtmlJsModule.saveAsHtml();
+        await saveAsHtml();
     } catch (error) {
         console.error('Error saving as html: ', error);
         alert('保存失败！请刷新页面重试');

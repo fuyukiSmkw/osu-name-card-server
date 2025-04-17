@@ -102,8 +102,7 @@ convertCSSFontsToBase64(`
     .then(console.log); */
 
 // save as html
-
-export async function saveAsHtml() {
+async function saveAsHtml() {
     const container = document.getElementById('nameCardContainer');
 
     let now = formatNow();
