@@ -53,7 +53,10 @@ async function waitAndShowPreloadImages() {
 const waitStatus = document.getElementById('waitStatus');
 const setWaitStatus = (str) => { waitStatus.innerHTML = str; }
 
-document.getElementById('submitBtn').addEventListener('click', async () => {
+// document.getElementById('submitBtn').addEventListener('click', async () => { // old
+document.getElementById('myForm').addEventListener('submit', async (e) => {
+    e.preventDefault(); // 阻止默认提交行为
+
     const username = document.getElementById('usernameInput').value.trim();
 
     if (!username) {
