@@ -43,13 +43,21 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
             });
 
             if (!response.ok)
-                throw new Error(`HTTP Error, status code: ${response.status}`);
+                throw response;
 
             const data = await response.json();
             user = data.user;
         } catch (error) {
             console.error('Error fetching user from server: ', error);
-            alert('获取用户信息失败: ', error);
+            const data = await error?.json();
+            console.error(data);
+            if ('error' in data) {
+                const promptStr = '获取用户信息失败: ' + data?.error?.message;
+                alert(promptStr);
+            } else {
+                alert('获取用户信息失败，请刷新页面重试');
+            }
+            return;
         }
     }
 
