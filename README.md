@@ -10,7 +10,7 @@ GPLv3 or later
 
 Set environmental variables: (You can create a file `.env` if it is local)
 1. `CLIENT_ID`, `CLIENT_SECRET`: your client ID and secret.  See your [osu settings](https://osu.ppy.sh/home/account/edit)
-2. `HOSTNAME`: eg. `https://osu-name-card-server.vercel.app` (no need for local)
+2. `HOSTNAME`: eg. `https://osu-name-card-server.vercel.app` (no need for local) (**SHOULD NOT END WITH A "/" !!!!!!** otherwise the images will be 403 forbidden)
 
 ## Run
 
