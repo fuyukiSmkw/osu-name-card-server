@@ -1,3 +1,7 @@
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function getRootUrl() {
     return `${window.location.protocol}//${window.location.host}`; // "https://osu-name-card-server.vercel.app/"
 }
@@ -56,9 +60,45 @@ async function waitAndShowPreloadImages() {
     }
 }
 
-// 等待提示
-const waitStatus = document.getElementById('waitStatus');
+// 等待提示（按钮）
+const submitBtn = document.getElementById('submitBtn');
+function btnWait() {
+    submitBtn.innerHTML = '制作中...';
+    submitBtn.disabled = 'disabled';
+}
+async function btnOk() {
+    submitBtn.disabled = null;
+    submitBtn.innerHTML = '制作完成！';
+    await sleep(2000);
+    submitBtn.innerHTML = '制作名片！';
+}
+async function btnError() {
+    submitBtn.disabled = null;
+    submitBtn.innerHTML = '失败了 qwq';
+    await sleep(2000);
+    submitBtn.innerHTML = '制作名片！';
+}
 const setWaitStatus = (str) => { waitStatus.innerHTML = str; }
+
+// 自定义背景单选框
+const bgTypeRadios = document.querySelectorAll('input[name="bgType"]');
+bgTypeRadios.forEach(radio => {
+    radio.addEventListener('change', updateBgRadio);
+});
+// color input
+const bgColorPicker = document.getElementById('customBgColor');
+const bgColorText = document.getElementById('customBgColorText');
+bgColorPicker.addEventListener('input', (e) => bgColorText.value = e.target.value);
+bgColorText.addEventListener('input', (e) => bgColorPicker.value = e.target.value);
+const bgImageInputs = document.getElementById('customBgImageInputs');
+const bgColorInputs = document.getElementById('customBgColorInputs');
+var selectedBgType = 'default';
+function updateBgRadio() {
+    selectedBgType = document.querySelector('input[name="bgType"]:checked').value;
+    bgImageInputs.classList.toggle('visible', selectedBgType === 'image');
+    bgColorInputs.classList.toggle('visible', selectedBgType === 'color');
+}
+updateBgRadio();
 
 // document.getElementById('submitBtn').addEventListener('click', async () => { // old
 document.getElementById('myForm').addEventListener('submit', async (e) => {
@@ -71,10 +111,10 @@ document.getElementById('myForm').addEventListener('submit', async (e) => {
         return;
     }
 
-    setWaitStatus('制作中...');
+    btnWait();
 
     const failed = () => {
-        setWaitStatus('制作失败 qwq');
+        btnError();
         enableButtons(false);
     };
 
@@ -139,8 +179,23 @@ document.getElementById('myForm').addEventListener('submit', async (e) => {
     addWaitForPreloadImages(() => nameCardContainer.style.borderRadius = finalRadius);
 
     // 背景 banner URL 及预加载
-    const userBgURL = document.getElementById('userBgInput').value.trim() || user.cover.url;
-    const userBgColor = document.getElementById('userBgColorInput').value.trim();
+    let userBgURL;
+    let userBgColor;
+    switch (selectedBgType) {
+        case 'default':
+            userBgURL = user.cover.url;
+            break;
+        case 'image':
+            userBgURL = document.getElementById('customBgImage').value.trim();
+            break;
+        case 'color':
+            userBgColor = document.getElementById('customBgColorText').value.trim() || '#000000';
+            break;
+        case 'transparent':
+            userBgColor = '#00000000';
+            break;
+        default:
+    }
     const bgOverlay = nameCardContainer.querySelector('.backgroundOverlay');
     if (userBgColor)
         addWaitForPreloadImages(() => bgOverlay.style.background = userBgColor);
@@ -164,8 +219,8 @@ document.getElementById('myForm').addEventListener('submit', async (e) => {
         alert(promptStr);
         failed();
     }
-    waitStatus.innerHTML = '制作完成！';
     nameCardContainer.style.visibility = 'visible';
+    btnOk();
     enableButtons(true);
 });
 
@@ -266,5 +321,35 @@ saveAsHtmlBtn.addEventListener('click', async () => {
     } catch (error) {
         console.error('Error saving as html: ', error);
         alert('保存失败！请刷新页面重试');
+    }
+});
+
+// 点击展开
+function toggleContent(contentContainerID, triangleID, btnTextID, description) {
+    const content = document.getElementById(contentContainerID);
+    const triangle = document.getElementById(triangleID);
+    const text = document.getElementById(btnTextID);
+
+    if (!content.classList.contains('expanded')) {
+        // content.style.display = 'block';
+        content.classList.add('expanded');
+        triangle.classList.add('expanded');
+        text.innerHTML = '收起' + description;
+    } else {
+        // content.style.display = 'none';
+        content.classList.remove('expanded');
+        triangle.classList.remove('expanded');
+        text.innerHTML = '展开' + description;
+    }
+}
+
+// 边框圆角 文本框无效
+const borderRadiusInput = document.getElementById('borderRadiusInput');
+const roundedCornerCheck = document.getElementById('roundedCornerCheck');
+roundedCornerCheck.addEventListener('change', () => {
+    if (roundedCornerCheck.checked) {
+        borderRadiusInput.disabled = null;
+    } else {
+        borderRadiusInput.disabled = 'disabled';
     }
 });
