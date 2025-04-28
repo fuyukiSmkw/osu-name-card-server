@@ -165,6 +165,7 @@ document.getElementById('myForm').addEventListener('submit', async (e) => {
         failed();
     }
     waitStatus.innerHTML = '制作完成！';
+    nameCardContainer.style.visibility = 'visible';
     enableButtons(true);
 });
 

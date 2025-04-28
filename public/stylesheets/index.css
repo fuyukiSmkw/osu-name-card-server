@@ -26,6 +26,7 @@ body {
 }
 
 .nameCardContainer {
+    visibility: hidden;
     position: relative;
     display: inline-flex; /* 内容自适应 */
     justify-content: center;
@@ -60,7 +61,8 @@ body {
     border-radius: 80px;
     display: block; /* 移除图片底部间隙 */
     margin-bottom: 12px; /* 与文字间距 */
-    /*width: 256px; */
+    width: 256px;
+    height: 256px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.8); /* 图片阴影 */
 }
 
