@@ -111,14 +111,13 @@ body {
     border-radius: 4px;
 }
 
-.toggle-button {
-    background: none;
-    border: none;
-    padding: 0;
+.toggleCheck {
+    display: none;
+}
+
+.toggleLabel {
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    color: #666;
+    user-select: none;
 }
 
 .triangle {
@@ -132,8 +131,14 @@ body {
     transition: transform 0.2s;
 }
 
-.triangle.expanded {
+.toggleCheck:checked~.container .triangle {
     transform: rotate(90deg);
+}
+
+.toggleCheck:checked~.container .toggleContentContainer {
+    max-height: 9999px;
+    opacity: 1;
+    padding: 10px;
 }
 
 .toggleContentContainer {
@@ -148,12 +153,6 @@ body {
         max-height 0.2s ease-in-out,
         opacity 0.2s ease-in-out,
         padding 0.2s ease-in-out;
-}
-
-.toggleContentContainer.expanded {
-    max-height: 9999px;
-    opacity: 1;
-    padding: 10px;
 }
 
 .optionalInputGroup {

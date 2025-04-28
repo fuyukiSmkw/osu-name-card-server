@@ -100,6 +100,27 @@ function updateBgRadio() {
 }
 updateBgRadio();
 
+// 头像圆角 文本框无效
+const avatarBorderRadiusInput = document.getElementById('avatarBorderRadiusInput');
+const avatarRoundedCornerCheck = document.getElementById('avatarRoundedCornerCheck');
+avatarRoundedCornerCheck.addEventListener('change', () => {
+    if (avatarRoundedCornerCheck.checked) {
+        avatarBorderRadiusInput.disabled = null;
+    } else {
+        avatarBorderRadiusInput.disabled = 'disabled';
+    }
+});
+// 边框圆角 文本框无效
+const borderRadiusInput = document.getElementById('borderRadiusInput');
+const roundedCornerCheck = document.getElementById('roundedCornerCheck');
+roundedCornerCheck.addEventListener('change', () => {
+    if (roundedCornerCheck.checked) {
+        borderRadiusInput.disabled = null;
+    } else {
+        borderRadiusInput.disabled = 'disabled';
+    }
+});
+
 // document.getElementById('submitBtn').addEventListener('click', async () => { // old
 document.getElementById('myForm').addEventListener('submit', async (e) => {
     e.preventDefault(); // 阻止默认提交行为
@@ -165,11 +186,12 @@ document.getElementById('myForm').addEventListener('submit', async (e) => {
         nameCardContainer.style.width = `${width}px`;
         nameCardContainer.style.height = `${height}px`;
     });
+
     // 设置边框圆角大小
     const brrrr = Math.round(Math.min(width, height) * 0.12);
-    const userRadius = document.getElementById('borderRadiusInput').value || NaN;
+    const userRadius = borderRadiusInput.value || NaN;
     let finalRadius;
-    if (document.getElementById('roundedCornerCheck').checked)
+    if (roundedCornerCheck.checked)
         if (isNaN(userRadius))
             finalRadius = `${brrrr}px`;
         else
@@ -210,6 +232,17 @@ document.getElementById('myForm').addEventListener('submit', async (e) => {
         img.alt = `${user.username}'s avatar`;
         text.innerHTML = user.username
     });
+
+    // 设置头像圆角大小
+    var avatarRadius = avatarBorderRadiusInput.value || NaN;
+    if (avatarRoundedCornerCheck.checked)
+        if (isNaN(avatarRadius))
+            avatarRadius = '80px';
+        else
+            avatarRadius = `${avatarRadius}px`;
+    else
+        avatarRadius = '0';
+    addWaitForPreloadImages(() => img.style.borderRadius = avatarRadius);
 
     try {
         await waitAndShowPreloadImages();
@@ -343,13 +376,12 @@ function toggleContent(contentContainerID, triangleID, btnTextID, description) {
     }
 }
 
-// 边框圆角 文本框无效
-const borderRadiusInput = document.getElementById('borderRadiusInput');
-const roundedCornerCheck = document.getElementById('roundedCornerCheck');
-roundedCornerCheck.addEventListener('change', () => {
-    if (roundedCornerCheck.checked) {
-        borderRadiusInput.disabled = null;
+const toggleCheck = document.getElementById('toggleCheck');
+function updateToggleContent(descriptionText) {
+    if (toggleCheck.checked) {
+        toggleCheckText.innerHTML = '收起自定义选项';
     } else {
-        borderRadiusInput.disabled = 'disabled';
+        toggleCheckText.innerHTML = '展开自定义选项';
     }
-});
+}
+updateToggleContent();

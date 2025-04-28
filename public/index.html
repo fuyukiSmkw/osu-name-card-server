@@ -11,14 +11,14 @@
 </head>
 
 <body>
+    <input type="checkbox" id="toggleCheck" class="toggleCheck rightAlign" onchange="updateToggleContent()">
     <div class="container">
         <form id="myForm" action="javascript:void(0);">用户: <input type="text" name="username" id="usernameInput"
                 placeholder="用户名"><button type="submit" id="submitBtn">制作名片！</button> <a id="waitStatus"> </a>
-            <button class="toggleButton rightAlign" id="toggleButton" type="button"
-                onclick="toggleContent('customizationContainer', 'toggleTriangle', 'toggleButtonText', '自定义选项')">
-                <span id="toggleButtonText">展开自定义选项</span>
+            <label for="toggleCheck" class="toggleLabel rightAlign">
+                <span id="toggleCheckText">展开自定义选项</span>
                 <div class="triangle" id="toggleTriangle"></div>
-            </button>
+            </label>
         </form>
         <div class="toggleContentContainer" id="customizationContainer">
             <div class="radioChoiceContainer" id="customBgGroup">
@@ -28,7 +28,7 @@
                 <input type="radio" name="bgType" id="bgTypeImage" value="image">
                 <label for="bgTypeImage">图片</label>
                 <div class="optionalInputGroup" id="customBgImageInputs">
-                    <input type="text" name="customBgImage" id="customBgImage" size="7" placeholder="图片链接">
+                    <input type="url" name="customBgImage" id="customBgImage" size="7" placeholder="图片链接">
                 </div>
                 <input type="radio" name="bgType" id="bgTypeColor" value="color">
                 <label for="bgTypeColor">颜色</label>
@@ -42,11 +42,15 @@
                     name="customBgColor" id="userBgColorInput" size="10" placeholder="#rrggbbaa"> -->
             </div>
             <br>
-            大小: <input type="text" name="width" id="widthInput" placeholder="宽 (默认 800)" size="10">px × <input
-                type="text" name="height" id="heightInput" placeholder="高 (默认 450)" size="10">px
+            大小: <input type="number" name="width" id="widthInput" placeholder="宽 (默认 800)" size="10">px × <input
+                type="number" name="height" id="heightInput" placeholder="高 (默认 450)" size="10">px
+            <br><br>
+            <input type="checkbox" id="avatarRoundedCornerCheck" name="avatarRoundedCornerCheck" checked /><label
+                for="avatarRoundedCornerCheck">头像圆角</label> <input type="number" name="avatarBorderRadius"
+                id="avatarBorderRadiusInput" placeholder="圆角半径 (默认80)" size="12">px
             <br><br>
             <input type="checkbox" id="roundedCornerCheck" name="roundedCornerCheck" checked /><label
-                for="roundedCornerCheck">边框圆角</label> <input type="text" name="borderRadius" id="borderRadiusInput"
+                for="roundedCornerCheck">边框圆角</label> <input type="number" name="borderRadius" id="borderRadiusInput"
                 placeholder="圆角半径 (默认短边×0.12)" size="12">px
             <br>
         </div>
